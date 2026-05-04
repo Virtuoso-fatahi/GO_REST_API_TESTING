@@ -1,14 +1,18 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+import auth from "../utils/auth.js";
+import { fa, faker } from '@faker-js/faker';
 import supertest from "supertest";
 const request = supertest("https://gorest.co.in/public/v2/");
-const token =
-  "a00723bc302d64bd227871db552058d0f7553a77a7d0f3b474dbf221a732c754";
+const token = process.env.validToken;
 
 export const createRandomUser = async () => {
   const userData = {
-    name: "Test User",
-    email: `testuser-${Math.floor(Math.random() * 9999)}@yopmail.com`,
-    gender: "male",
-    status: "active",
+    name: faker.person.fullName(),
+    email: faker.internet.email(),
+    gender: faker.helpers.arrayElement(["male", "female"]),
+    status: faker.helpers.arrayElement(["active", "inactive"]),
   };
 
   const res = await request
@@ -16,5 +20,5 @@ export const createRandomUser = async () => {
     .set("Authorization", `Bearer ${token}`)
     .send(userData);
 
-  return res.body.id;
+  return res.body;
 };

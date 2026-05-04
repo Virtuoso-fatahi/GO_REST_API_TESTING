@@ -1,24 +1,27 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 import { expect } from "chai";
 import auth from "../utils/auth.js";
+import { fa, faker } from '@faker-js/faker';
 import { createRandomUser } from "../helper/user_helper.js";
 
 const token = process.env.validToken;
 const invalidToken = process.env.invalidToken; 
 
-describe.only("User Post", () => {
+describe("User Post", () => {
   let postId, userId;
 
   before(async () => {
-    userId = await createRandomUser();
+   const user = await createRandomUser();
+    userId = user.id;
+    
   });
 
   it("Create a post for a user", async () => {
     const postData = {
       user_id: userId,
-      title: "Test Post Title",
-      body: "This is the body of the test post.",
+      title: faker.lorem.sentence(),
+      body: faker.lorem.paragraph(),
     };
 
     const postRes = await auth
@@ -39,8 +42,6 @@ describe.only("User Post", () => {
       .get(`posts/${postId}`)
       .set("Authorization", `Bearer ${token}`);
 
-    console.log(res.body);
-
     expect(res.status).to.equal(200);
     expect(res.body).to.exist;
     expect(res.body).to.not.be.empty;
@@ -51,8 +52,8 @@ describe.only("User Post", () => {
     it("Create a post without token", async () => {
       const postData = {
         user_id: userId,
-        title: "Test Post Title",
-        body: "This is the body of the test post.",
+        title: faker.lorem.sentence(),
+        body: faker.lorem.paragraph(),
       };
 
       const postRes = await auth
@@ -67,8 +68,8 @@ describe.only("User Post", () => {
     it("Create a post with invalid token", async () => {
       const postData = {
         user_id: userId,
-        title: "Test Post Title",
-        body: "This is the body of the test post.",
+        title: faker.lorem.sentence(),
+        body: faker.lorem.paragraph(),
       };
 
       const postRes = await auth
@@ -76,16 +77,14 @@ describe.only("User Post", () => {
         .set("Authorization", `Bearer ${invalidToken}`)
         .send(postData);
 
-      console.log(postRes.body);
-
       expect(postRes.status).to.equal(401);
       expect(postRes.body.message).to.equal("Invalid token");
     });
 
-    it.only("Create a post with incomplete field", async () => {
+    it("Create a post with incomplete field", async () => {
       const postData = {
         user_id: userId,
-        title: "Test Post Title",
+        title: faker.lorem.sentence(),
       };
 
       const postRes = await auth

@@ -10,7 +10,6 @@ const page = 4;
 const gender = "female";
 
 describe("Users", () => {
-  let userId; // Replace with a valid user ID for testing
   describe("POST /users", () => {
     it("Register a new user", () => {
       const data = {
@@ -25,7 +24,6 @@ describe("Users", () => {
         .set("Authorization", `Bearer ${token}`)
         .send(data)
         .then((res) => {
-          userId = res.body.id; // Store the created user ID for later tests
 
           expect(res.status).to.equal(201);
           expect(res.body).to.exist;
@@ -44,8 +42,10 @@ describe("Users", () => {
       });
     });
 
-    it("Retrieve a single user with valid id, /users/:id", () => {
-      return request
+    it("Retrieve a single user with valid id", async () => {
+      const user = await createRandomUser();
+      const userId = user.id;
+      return auth
         .get(`users/${userId}?access-token=${token}`)
         .then((res) => {
           expect(res.status).to.equal(200);
@@ -55,8 +55,8 @@ describe("Users", () => {
         });
     });
 
-    it("Retrieve users from a single page, /users?page", () => {
-      return request
+    it("Retrieve users from a single page", () => {
+      return auth
         .get(`users?page=${page}&access-token=${token}`)
         .then((res) => {
           expect(res.status).to.equal(200);
@@ -67,7 +67,7 @@ describe("Users", () => {
 
     it("Retrieve users with query params", () => {
       const urlQueryParams = `users?page=${page}&gender=${gender}&access-token=${token}`;
-      return request.get(urlQueryParams).then((res) => {
+      return auth.get(urlQueryParams).then((res) => {
         expect(res.status).to.equal(200);
         expect(res.body).to.exist;
         expect(res.body).to.not.be.empty;
@@ -81,7 +81,9 @@ describe("Users", () => {
     });
   });
 
-  describe("PUT /users", () => {
+  describe("PUT /users", async () => {
+    const user = await createRandomUser();
+    const userId = user.id;
     it("Update a user with valid id", () => {
       const data = {
         name: "Updated Test User",
@@ -90,7 +92,7 @@ describe("Users", () => {
         status: "active",
       };
 
-      return request
+      return auth
         .put(`users/${userId}`)
         .set("Authorization", `Bearer ${token}`)
         .send(data)
@@ -103,9 +105,11 @@ describe("Users", () => {
     });
   });
 
-  describe("DELETE /users", () => {
+  describe("DELETE /users", async () => {
+    const user = await createRandomUser();
+    const userId = user.id;
     it("Delete a user with valid id", () => {
-      return request
+      return auth
         .delete(`users/${userId}`)
         .set("Authorization", `Bearer ${token}`)
         .then((res) => {
