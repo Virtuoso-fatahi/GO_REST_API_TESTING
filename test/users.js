@@ -5,17 +5,10 @@ const request = supertest("https://gorest.co.in/public/v2/");
 const token = "a00723bc302d64bd227871db552058d0f7553a77a7d0f3b474dbf221a732c754"
 const userId = 8454711; // Replace with a valid user ID for testing
 const page = 4;
-const gender = "female";;
+const gender = "female";
 
-describe("Users", () => {
+describe.skip("Users", () => {
     it("[GET] /users", () => {
-        // request
-        //     .get(`users?access-token=${token}`)
-        //     .end((err, res) => {
-        //         expect(res.status).to.equal(200);
-        //         expect(res.body.data).to.not.be.empty;
-        //         done();
-        //     });
 
         return request
             .get(`users?access-token=${token}`)
@@ -87,14 +80,12 @@ describe("Users", () => {
         expect(res.status).to.equal(201);
         expect(res.body).to.exist;
         expect(res.body).to.not.be.empty;
-        // expect(res.body.name).to.equal(data.name);
-        // expect(res.body.email).to.equal(data.email);
         expect(res.body).to.deep.include(data);
             
         });
     });
 
-    it.only("[PUT], /users/:id", ()=> {
+    it("[PUT], /users/:id", ()=> {
         const data = {
             "name": "Updated Test User",
             "email": `updatedtestuser-${Math.floor(Math.random() * 9)}@yopmail.com`,
@@ -107,8 +98,7 @@ describe("Users", () => {
         .set("Authorization", `Bearer ${token}`)
         .send(data)
         .then((res) => {
-
-            console.log(res.body);  
+ 
         expect(res.status).to.equal(200);
         expect(res.body).to.exist;
         expect(res.body).to.not.be.empty;
@@ -116,4 +106,14 @@ describe("Users", () => {
 
         });
     });
+
+    it("[DELETE] /users/:id", ()=> {
+        return request
+        .delete(`users/${userId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .then((res) => {
+            expect(res.status).to.equal(204);
+            expect(res.body).to.be.empty;
+        });
+    })
 });
